@@ -1,0 +1,10 @@
+@Service_HostAddress=http://localhost:5173
+
+###
+GET {{Service_HostAddress}}/generate
+Content-Type: application/json
+
+{
+  "template": "hello, \u007B{ name }}",
+  "model": "{\"name\":\"Bob\"}"
+}
