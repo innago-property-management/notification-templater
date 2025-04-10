@@ -1,4 +1,4 @@
-namespace Service;
+namespace Innago.Public.NotificationTemplater;
 
 using Prometheus;
 
