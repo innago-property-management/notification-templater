@@ -1,16 +1,22 @@
-namespace Service;
+namespace Innago.Public.NotificationTemplater.API;
 
 using System.Text;
 using System.Text.Json;
+
+using Innago.Public.NotificationTemplater.API.HandlerModels;
+
+using JetBrains.Annotations;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 
 using Scriban;
 
-internal static class Handlers
+[PublicAPI]
+public static class Handlers
 {
-    internal static string Generate([FromBody] GenerateInput input)
+    [Pure]
+    public static string Generate([FromBody] GenerateInput input)
     {
         Template? template = Template.Parse(input.Template);
         object data = (object?)JsonSerializer.Deserialize<JsonElement>(input.Model) ?? new { };
@@ -18,7 +24,8 @@ internal static class Handlers
         return result;
     }
 
-    internal static async Task<string> GenerateFromSavedTemplateAsync(
+    [MustUseReturnValue]
+    public static async Task<string> GenerateFromSavedTemplateAsync(
         [FromBody] GenerateFromSavedTemplateInput input,
         [FromServices] IDistributedCache cache,
         CancellationToken cancellationToken
@@ -31,7 +38,7 @@ internal static class Handlers
         return Generate(new GenerateInput(template, input.Model));
     }
 
-    internal static Task SaveTemplateAsync(
+    public static Task SaveTemplateAsync(
         [FromBody] TemplateSaveInput input,
         [FromServices] IDistributedCache cache,
         CancellationToken cancellationToken)

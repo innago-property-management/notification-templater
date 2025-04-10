@@ -1,0 +1,22 @@
+Innago.Public.NotificationTemplater.API.HandlerModels.GenerateFromSavedTemplateInput
+Innago.Public.NotificationTemplater.API.HandlerModels.GenerateFromSavedTemplateInput.GenerateFromSavedTemplateInput(string! Key, string! Model) -> void
+Innago.Public.NotificationTemplater.API.HandlerModels.GenerateFromSavedTemplateInput.Key.get -> string!
+Innago.Public.NotificationTemplater.API.HandlerModels.GenerateFromSavedTemplateInput.Key.init -> void
+Innago.Public.NotificationTemplater.API.HandlerModels.GenerateFromSavedTemplateInput.Model.get -> string!
+Innago.Public.NotificationTemplater.API.HandlerModels.GenerateFromSavedTemplateInput.Model.init -> void
+Innago.Public.NotificationTemplater.API.HandlerModels.GenerateInput
+Innago.Public.NotificationTemplater.API.HandlerModels.GenerateInput.GenerateInput(string! Template, string! Model) -> void
+Innago.Public.NotificationTemplater.API.HandlerModels.GenerateInput.Model.get -> string!
+Innago.Public.NotificationTemplater.API.HandlerModels.GenerateInput.Model.init -> void
+Innago.Public.NotificationTemplater.API.HandlerModels.GenerateInput.Template.get -> string!
+Innago.Public.NotificationTemplater.API.HandlerModels.GenerateInput.Template.init -> void
+Innago.Public.NotificationTemplater.API.HandlerModels.TemplateSaveInput
+Innago.Public.NotificationTemplater.API.HandlerModels.TemplateSaveInput.Key.get -> string!
+Innago.Public.NotificationTemplater.API.HandlerModels.TemplateSaveInput.Key.init -> void
+Innago.Public.NotificationTemplater.API.HandlerModels.TemplateSaveInput.Template.get -> string!
+Innago.Public.NotificationTemplater.API.HandlerModels.TemplateSaveInput.Template.init -> void
+Innago.Public.NotificationTemplater.API.HandlerModels.TemplateSaveInput.TemplateSaveInput(string! Key, string! Template) -> void
+Innago.Public.NotificationTemplater.API.Handlers
+static Innago.Public.NotificationTemplater.API.Handlers.Generate(Innago.Public.NotificationTemplater.API.HandlerModels.GenerateInput! input) -> string!
+static Innago.Public.NotificationTemplater.API.Handlers.GenerateFromSavedTemplateAsync(Innago.Public.NotificationTemplater.API.HandlerModels.GenerateFromSavedTemplateInput! input, Microsoft.Extensions.Caching.Distributed.IDistributedCache! cache, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<string!>!
+static Innago.Public.NotificationTemplater.API.Handlers.SaveTemplateAsync(Innago.Public.NotificationTemplater.API.HandlerModels.TemplateSaveInput! input, Microsoft.Extensions.Caching.Distributed.IDistributedCache! cache, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task!

@@ -1,4 +1,4 @@
-namespace Service;
+namespace Innago.Public.NotificationTemplater;
 
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;

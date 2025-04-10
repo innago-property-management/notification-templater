@@ -1,4 +1,4 @@
-using Service;
+using Innago.Public.NotificationTemplater;
 
 AppDomain.CurrentDomain.SetData("REGEX_DEFAULT_MATCH_TIMEOUT", TimeSpan.FromSeconds(2));
 
