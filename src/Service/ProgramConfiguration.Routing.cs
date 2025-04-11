@@ -11,7 +11,7 @@ internal static partial class ProgramConfiguration
         app.MapOpenApi("/openapi.json").CacheOutput();
         app.MapHealthChecks("/healthz");
         app.MapMetrics("/metricsz");
-        
+
         app.MapGet("/generate", Handlers.Generate).WithDescription("Generates a string from a model and a template").WithTags("template");
 
         app.MapPost("/template", Handlers.SaveTemplateAsync).WithDescription("Saves a template").WithTags("template");
