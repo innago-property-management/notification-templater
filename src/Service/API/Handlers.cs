@@ -1,9 +1,8 @@
 namespace Innago.Public.NotificationTemplater.API;
 
-using System.Text;
 using System.Text.Json;
 
-using Innago.Public.NotificationTemplater.API.HandlerModels;
+using HandlerModels;
 
 using JetBrains.Annotations;
 
@@ -19,7 +18,8 @@ public static class Handlers
     public static string Generate([FromBody] GenerateInput input)
     {
         Template? template = Template.Parse(input.Template);
-        object data = (object?)JsonSerializer.Deserialize<JsonElement>(input.Model) ?? new { };
+
+        object data = GetData(input.Model);
         string result = template?.Render(data, member => $"{char.ToLower(member.Name[0])}{member.Name[1..]}") ?? string.Empty;
         return result;
     }
@@ -31,9 +31,7 @@ public static class Handlers
         CancellationToken cancellationToken
     )
     {
-        byte[] data = await cache.GetAsync(input.Key, cancellationToken).ConfigureAwait(false) ?? [];
-
-        string template = Encoding.UTF8.GetString(data);
+        string template = await cache.GetStringAsync(input.Key, cancellationToken).ConfigureAwait(false) ?? string.Empty;
 
         return Generate(new GenerateInput(template, input.Model));
     }
@@ -44,5 +42,22 @@ public static class Handlers
         CancellationToken cancellationToken)
     {
         return cache.SetStringAsync(input.Key, input.Template, cancellationToken);
+    }
+
+    [Pure]
+    private static object GetData(string json)
+    {
+        object data = new { };
+
+        try
+        {
+            data = (object?)JsonSerializer.Deserialize<JsonElement>(json) ?? new { };
+        }
+        catch
+        {
+            // do nothing
+        }
+
+        return data;
     }
 }
