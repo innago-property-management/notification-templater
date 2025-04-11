@@ -2,7 +2,7 @@ namespace Innago.Public.NotificationTemplater.API;
 
 using System.Text.Json;
 
-using Innago.Public.NotificationTemplater.API.HandlerModels;
+using HandlerModels;
 
 using JetBrains.Annotations;
 
