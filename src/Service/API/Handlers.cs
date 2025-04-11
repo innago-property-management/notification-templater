@@ -47,15 +47,15 @@ public static class Handlers
     [Pure]
     private static object GetData(string json)
     {
-        object data;
+        object data = new { };
 
         try
         {
             data = (object?)JsonSerializer.Deserialize<JsonElement>(json) ?? new { };
         }
-        catch (Exception)
+        catch
         {
-            data = new { };
+            // do nothing
         }
 
         return data;

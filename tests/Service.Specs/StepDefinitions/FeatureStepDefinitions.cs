@@ -7,33 +7,56 @@ using Bogus;
 
 using FluentAssertions;
 
-using Innago.Public.NotificationTemplater.API;
 using Innago.Public.NotificationTemplater.API.HandlerModels;
 
 using Microsoft.Extensions.Caching.Distributed;
 
 using Moq;
 
-using static Innago.Public.NotificationTemplater.API.Handlers;
-
 using Reqnroll;
 
 using Scriban;
 
+using static Innago.Public.NotificationTemplater.API.Handlers;
+
 [Binding]
 public class FeatureStepDefinitions
 {
-    private Faker ValueGenerator { get; } = new();
-    private string? template;
+    private readonly IDistributedCache distributedCache = MakeCache();
+    private string? key;
     private string? model;
     private string? result;
-    private string? key;
-    private IDistributedCache distributedCache = MakeCache();
+    private string? template;
+    private Faker ValueGenerator { get; } = new();
 
-    [Given("valid template")]
-    public void GivenValidTemplate()
+    [Given("empty model")]
+    public void GivenEmptyModel()
     {
-        this.template = "Hello, {{ name }}";
+        this.model = string.Empty;
+    }
+
+    [Given("invalid saved template")]
+    public void GivenInvalidSavedTemplate()
+    {
+        this.template = "Hello, { name }";
+    }
+
+    [Given("key")]
+    public void GivenKey()
+    {
+        this.key = string.Join('.', this.ValueGenerator.Random.Words(5));
+    }
+
+    [Given("unmatched model")]
+    public void GivenUnmatchedModel()
+    {
+        string firstName = this.ValueGenerator.Person.FirstName;
+
+        this.model = $$"""
+                       {
+                          "firstName": "{{firstName}}"
+                       }
+                       """;
     }
 
     [Given("valid model")]
@@ -48,10 +71,26 @@ public class FeatureStepDefinitions
                        """;
     }
 
-    [When("Generate is called using template and model")]
-    public void WhenGenerateIsCalledUsingTemplateAndModel()
+    [Given("valid saved template")]
+    public async Task GivenValidSavedTemplate()
     {
-        this.result = Generate(new GenerateInput(this.template!, this.model!));
+        this.GivenValidModel();
+        this.GivenKey();
+        await this.WhenSaveIsCalledUsingKeyAndModel();
+    }
+
+    [Given("valid template")]
+    public void GivenValidTemplate()
+    {
+        this.template = "Hello, {{ name }}";
+    }
+
+    [Then("model should be saved")]
+    public void ThenModelShouldBeSaved()
+    {
+        Mock.Get(this.distributedCache)
+            .Verify(cache =>
+                cache.SetAsync(this.key!, Encoding.UTF8.GetBytes(this.model!), It.IsAny<DistributedCacheEntryOptions>(), It.IsAny<CancellationToken>()));
     }
 
     [Then("the result should be correct")]
@@ -64,25 +103,31 @@ public class FeatureStepDefinitions
         this.result.Should().Be(expected);
     }
 
-    [Given("key")]
-    public void GivenKey()
+    [Then("the result should be empty string")]
+    public void ThenTheResultShouldBeEmptyString()
     {
-        this.key = string.Join('.', this.ValueGenerator.Random.Words(5));
+        this.result.Should().Be(string.Empty);
+    }
+
+    [When("Generate is called using key and model")]
+    public async Task WhenGenerateIsCalledUsingKeyAndModel()
+    {
+        this.result = await GenerateFromSavedTemplateAsync(new GenerateFromSavedTemplateInput(this.key!, this.model!),
+            this.distributedCache,
+            CancellationToken.None);
+    }
+
+    [When("Generate is called using template and model")]
+    public void WhenGenerateIsCalledUsingTemplateAndModel()
+    {
+        this.result = Generate(new GenerateInput(this.template!, this.model!));
     }
 
     [When("Save is called using key and model")]
     public async Task WhenSaveIsCalledUsingKeyAndModel()
     {
         TemplateSaveInput input = new(this.key!, this.model!);
-        await Handlers.SaveTemplateAsync(input, this.distributedCache, CancellationToken.None);
-    }
-
-    [Then("model should be saved")]
-    public void ThenModelShouldBeSaved()
-    {
-        Mock.Get(this.distributedCache)
-            .Verify(cache =>
-                cache.SetAsync(this.key!, Encoding.UTF8.GetBytes(this.model!), It.IsAny<DistributedCacheEntryOptions>(), It.IsAny<CancellationToken>()));
+        await SaveTemplateAsync(input, this.distributedCache, CancellationToken.None);
     }
 
     private static IDistributedCache MakeCache()
@@ -109,51 +154,5 @@ public class FeatureStepDefinitions
         ).Returns(Task.CompletedTask);
 
         return mock.Object;
-    }
-
-    [Given("valid saved template")]
-    public async Task GivenValidSavedTemplate()
-    {
-        this.GivenValidModel();
-        this.GivenKey();
-        await this.WhenSaveIsCalledUsingKeyAndModel();
-    }
-
-    [When("Generate is called using key and model")]
-    public async Task WhenGenerateIsCalledUsingKeyAndModel()
-    {
-        this.result = await GenerateFromSavedTemplateAsync(new GenerateFromSavedTemplateInput(this.key!, this.model!),
-            this.distributedCache,
-            CancellationToken.None);
-    }
-
-    [Given("unmatched model")]
-    public void GivenUnmatchedModel()
-    {
-        string firstName = this.ValueGenerator.Person.FirstName;
-
-        this.model = $$"""
-                       {
-                          "firstName": "{{firstName}}"
-                       }
-                       """;
-    }
-
-    [Given("empty model")]
-    public void GivenEmptyModel()
-    {
-        this.model = string.Empty;
-    }
-
-    [Then("the result should be empty string")]
-    public void ThenTheResultShouldBeEmptyString()
-    {
-        this.result.Should().Be(string.Empty);
-    }
-
-    [Given("invalid saved template")]
-    public void GivenInvalidSavedTemplate()
-    {
-        this.template = "Hello, { name }";
     }
 }
