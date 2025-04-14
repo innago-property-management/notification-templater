@@ -54,9 +54,9 @@ public class FeatureStepDefinitions
 
         this.model = $$"""
                        {
-                          "firstName": "{{firstName}}"
+            "firstName": "{{firstName}}"
                        }
-                       """;
+        """;
     }
 
     [Given("valid model")]
@@ -66,9 +66,9 @@ public class FeatureStepDefinitions
 
         this.model = $$"""
                        {
-                          "name": "{{firstName}}"
+            "name": "{{firstName}}"
                        }
-                       """;
+        """;
     }
 
     [Given("valid saved template")]
