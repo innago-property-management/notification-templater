@@ -1,6 +1,9 @@
-using Grpc.Core;
-using NotificationTemplater.Grpc;
 using System.Collections.Concurrent;
+
+using Grpc.Core;
+
+using NotificationTemplater.Grpc;
+
 using Status = Grpc.Core.Status;
 using StatusCode = Grpc.Core.StatusCode;
 
