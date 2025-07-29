@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option csharp_namespace = "NotificationTemplater.Grpc";
+
+package template;
+
+service TemplateProcessor {
+  rpc GetTemplate (TemplateRequest) returns (TemplateResponse);
+  rpc RollbackTemplate (RollbackTemplateRequest) returns (RollbackTemplateResponse);
+}
+
+message TemplateRequest {
+  string templateId = 1;
+}
+
+message TemplateResponse {
+  string templateId = 1;
+  string content = 2;
+  string subject = 3;
+}
+
+message RollbackTemplateRequest {
+  string templateId = 1;
+}
+
+message RollbackTemplateResponse {
+  bool success = 1;
+}

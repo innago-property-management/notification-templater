@@ -60,4 +60,12 @@ public static class Handlers
 
         return data;
     }
+    public static async Task<string> GetTemplateAsync(
+        string key,
+        [FromServices] IDistributedCache cache,
+        CancellationToken cancellationToken)
+    {
+        string? template = await cache.GetStringAsync(key, cancellationToken).ConfigureAwait(false);
+        return template ?? string.Empty;
+    }
 }

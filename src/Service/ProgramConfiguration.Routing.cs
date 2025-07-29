@@ -19,5 +19,6 @@ internal static partial class ProgramConfiguration
         app.MapGet("/generateFromSavedTemplate", Handlers.GenerateFromSavedTemplateAsync)
             .WithDescription("Generates a string from a model and a saved template")
             .WithTags("template");
+        app.MapGet("/template/{key}", Handlers.GetTemplateAsync).WithDescription("Retrieves a saved template by key").WithTags("template");
     }
 }
