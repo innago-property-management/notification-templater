@@ -9,7 +9,12 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 
+using Platform.Messaging.EntityEvents;
+using Platform.Messaging.Publisher;
+
 using Scriban;
+
+using Shared.TryHelpers;
 
 [PublicAPI]
 public static class Handlers
@@ -36,12 +41,28 @@ public static class Handlers
         return Generate(new GenerateInput(template, input.Model));
     }
 
-    public static Task SaveTemplateAsync(
+    public static async Task SaveTemplateAsync(
         [FromBody] TemplateSaveInput input,
         [FromServices] IDistributedCache cache,
+        [FromServices] IPublisher publisher,
+        [FromServices] ILoggerFactory loggerFactory,
         CancellationToken cancellationToken)
     {
-        return cache.SetStringAsync(input.Key, input.Template, cancellationToken);
+        await cache.SetStringAsync(input.Key, input.Template, cancellationToken);
+
+        Result publishResult = await TryHelpers.TryAsync(() =>
+            publisher.PublishAsync(new EntityEventInfo<Template>(input.Key, Verb.Create), SourceGenerationContext.Default)).ConfigureAwait(false);
+
+        publishResult.IfFailed(PublisherError);
+
+        return;
+
+        Unit PublisherError(Exception? exception)
+        {
+            ILogger logger = loggerFactory.CreateLogger(nameof(Handlers));
+            logger.Error(exception);
+            return Unit.Default;
+        }
     }
 
     [Pure]

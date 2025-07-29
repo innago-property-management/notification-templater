@@ -2,14 +2,18 @@ namespace Service.Specs.StepDefinitions;
 
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 using Bogus;
 
 using FluentAssertions;
 
+using Innago.Platform.Messaging.EntityEvents;
+using Innago.Platform.Messaging.Publisher;
 using Innago.Public.NotificationTemplater.API.HandlerModels;
 
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 
 using Moq;
 
@@ -53,10 +57,10 @@ public class FeatureStepDefinitions
         string firstName = this.ValueGenerator.Person.FirstName;
 
         this.model = $$"""
-                       {
-            "firstName": "{{firstName}}"
-                       }
-        """;
+                                      {
+                           "firstName": "{{firstName}}"
+                                      }
+                       """;
     }
 
     [Given("valid model")]
@@ -65,10 +69,10 @@ public class FeatureStepDefinitions
         string firstName = this.ValueGenerator.Person.FirstName;
 
         this.model = $$"""
-                       {
-            "name": "{{firstName}}"
-                       }
-        """;
+                                      {
+                           "name": "{{firstName}}"
+                                      }
+                       """;
     }
 
     [Given("valid saved template")]
@@ -127,7 +131,40 @@ public class FeatureStepDefinitions
     public async Task WhenSaveIsCalledUsingKeyAndModel()
     {
         TemplateSaveInput input = new(this.key!, this.model!);
-        await SaveTemplateAsync(input, this.distributedCache, CancellationToken.None);
+
+        await SaveTemplateAsync(
+            input,
+            this.distributedCache,
+            MakePublisher(),
+            MakeLoggerFactory(),
+            CancellationToken.None);
+    }
+
+    private static IPublisher MakePublisher()
+    {
+        Mock<IPublisher> mock = new(MockBehavior.Strict);
+
+        mock.Setup(publisher => publisher.PublishAsync(It.IsAny<IEntityEventInfo<It.IsAnyType>>(), It.IsAny<IJsonTypeInfoResolver>()));
+
+        return mock.Object;
+    }
+
+    private static ILoggerFactory MakeLoggerFactory()
+    {
+        Mock<ILogger> mockLogger = new(MockBehavior.Strict);
+        mockLogger.Setup(logger => logger.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+
+        mockLogger.Setup(logger => logger.Log(
+            It.IsAny<LogLevel>(),
+            It.IsAny<EventId>(),
+            It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception?>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()));
+
+        Mock<ILoggerFactory> mockFactory = new(MockBehavior.Strict);
+        mockFactory.Setup(factory => factory.CreateLogger(It.IsAny<string>())).Returns(() => mockLogger.Object);
+
+        return mockFactory.Object;
     }
 
     private static IDistributedCache MakeCache()
@@ -135,22 +172,18 @@ public class FeatureStepDefinitions
         Dictionary<string, byte[]> data = [];
         var mock = new Mock<IDistributedCache>(MockBehavior.Strict);
 
-        mock.Setup(
-            cache => cache.GetAsync(
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>())
-        ).ReturnsAsync(
-            (string k, CancellationToken _) =>
-                data.TryGetValue(k, out byte[]? b) ? b : []);
+        mock.Setup(cache => cache.GetAsync(
+            It.IsAny<string>(),
+            It.IsAny<CancellationToken>())
+        ).ReturnsAsync((string k, CancellationToken _) =>
+            data.TryGetValue(k, out byte[]? b) ? b : []);
 
-        mock.Setup(
-            cache => cache.SetAsync(
-                It.IsAny<string>(),
-                It.IsAny<byte[]>(),
-                It.IsAny<DistributedCacheEntryOptions>(),
-                It.IsAny<CancellationToken>())
-        ).Callback<string, byte[], DistributedCacheEntryOptions, CancellationToken>(
-            (k, value, _, _) => { data[k] = value; }
+        mock.Setup(cache => cache.SetAsync(
+            It.IsAny<string>(),
+            It.IsAny<byte[]>(),
+            It.IsAny<DistributedCacheEntryOptions>(),
+            It.IsAny<CancellationToken>())
+        ).Callback<string, byte[], DistributedCacheEntryOptions, CancellationToken>((k, value, _, _) => { data[k] = value; }
         ).Returns(Task.CompletedTask);
 
         return mock.Object;

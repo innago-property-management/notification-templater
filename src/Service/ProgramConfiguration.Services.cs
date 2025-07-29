@@ -1,5 +1,7 @@
 namespace Innago.Public.NotificationTemplater;
 
+using Platform.Messaging.Publisher.Amqp;
+
 using Prometheus;
 
 internal static partial class ProgramConfiguration
@@ -22,5 +24,7 @@ internal static partial class ProgramConfiguration
             .ConfigureResource(ConfigureResource(serviceName, serviceVersion))
             .WithTracing(ConfigureTracing(builder.Configuration, serviceName))
             .WithMetrics(ConfigureMetrics(serviceName));
+
+        builder.Services.AddAmqpCloudEventsPublisher(builder.Configuration);
     }
 }
