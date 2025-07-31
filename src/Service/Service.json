@@ -87,6 +87,36 @@
           }
         }
       }
+    },
+    "/template/{key}": {
+      "get": {
+        "tags": [
+          "template"
+        ],
+        "description": "Retrieves a saved template by its key",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
