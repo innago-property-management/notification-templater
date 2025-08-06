@@ -117,6 +117,25 @@
           }
         }
       }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "Innago.Public.NotificationTemplater"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -171,6 +190,9 @@
   "tags": [
     {
       "name": "template"
+    },
+    {
+      "name": "Innago.Public.NotificationTemplater"
     }
   ]
 }

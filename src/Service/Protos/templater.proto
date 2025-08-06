@@ -13,6 +13,7 @@ service NotificationTemplater {
 // The request message for GetTemplate.
 message GetTemplateRequest {
   string key = 1;
+  string model = 2;
 }
 
 // The response message for GetTemplate.
