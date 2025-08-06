@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option csharp_namespace = "Innago.Public.NotificationTemplater.API.Grpc"; // Important: This sets the C# namespace for generated code
+
+package templater;
+
+// The NotificationTemplater service definition.
+service NotificationTemplater {
+  // Retrieves a saved template by its key
+  rpc GetTemplate (GetTemplateRequest) returns (GetTemplateResponse);
+}
+
+// The request message for GetTemplate.
+message GetTemplateRequest {
+  string key = 1;
+  string model = 2;
+}
+
+// The response message for GetTemplate.
+message GetTemplateResponse {
+  string templateContent = 1; // Rename to avoid conflict with 'Template' in your existing models
+}

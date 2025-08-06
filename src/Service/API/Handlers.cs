@@ -43,7 +43,17 @@ public static class Handlers
     {
         return cache.SetStringAsync(input.Key, input.Template, cancellationToken);
     }
-
+    // New method to get a template by key
+    [MustUseReturnValue]
+    public static async Task<string> GetTemplateAsync(
+        [FromRoute] string key, // Use [FromRoute] to bind the key from the URL path
+        [FromServices] IDistributedCache cache,
+        CancellationToken cancellationToken
+    )
+    {
+        string template = await cache.GetStringAsync(key, cancellationToken).ConfigureAwait(false) ?? string.Empty;
+        return template;
+    }
     [Pure]
     private static object GetData(string json)
     {

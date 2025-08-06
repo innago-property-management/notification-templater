@@ -22,5 +22,7 @@ internal static partial class ProgramConfiguration
             .ConfigureResource(ConfigureResource(serviceName, serviceVersion))
             .WithTracing(ConfigureTracing(builder.Configuration, serviceName))
             .WithMetrics(ConfigureMetrics(serviceName));
+        
+        builder.Services.AddGrpc();
     }
 }
