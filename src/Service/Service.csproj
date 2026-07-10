@@ -53,7 +53,7 @@
         <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.11.1" />
         <PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.11.0-beta.2" />
         <PackageReference Include="prometheus-net.AspNetCore.HealthChecks" Version="8.2.1" />
-        <PackageReference Include="Scriban.Signed" Version="6.2.0" />
+        <PackageReference Include="Scriban.Signed" Version="7.2.1" />
         <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
         <PackageReference Include="Serilog.Sinks.Grafana.Loki" Version="8.3.0" />
         <PackageReference Include="SonarAnalyzer.CSharp" Version="10.8.0.113526">
